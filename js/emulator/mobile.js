@@ -12,7 +12,15 @@ var keyZones = [
   ["select", [16]],
   ["start", [13]]
 ];
-var cout = console.log.bind(console);
+if (typeof window.cout !== "function") {
+  window.cout = function(msg, lvl) {
+    if (typeof console !== "undefined" && console.log) {
+      console.log(msg);
+    }
+  };
+}
+var cout = window.cout;
+
 function startGame (blob) {
   var binaryHandle = new FileReader();
   binaryHandle.onload = function () {
@@ -58,7 +66,7 @@ function shim (eles) {
       if (!keyZone) return;
     }
     GameBoyKeyDown(keyZone);
-    navigator.vibrate(50);
+    if (navigator.vibrate) navigator.vibrate(50);
   };
   function onUp (e) {
     var keyZone = e.target.dataset.keyZone;
@@ -67,15 +75,17 @@ function shim (eles) {
       if (!keyZone) return;
     }
     GameBoyKeyUp(keyZone);
-    navigator.vibrate(0);
+    if (navigator.vibrate) navigator.vibrate(0);
   };
   eles.forEach(function (ele) {
-    ele.ontouchstart = ele.onmousedown = onDown;
-    ele.ontouchend = ele.onmouseup = onUp;
+    if (ele) {
+      ele.ontouchstart = ele.onmousedown = onDown;
+      ele.ontouchend = ele.onmouseup = onUp;
+    }
   });
 };
 
-var $ = document.getElementById.bind(document);
+var $ = function(id) { return document.getElementById(id); };
 function registerTouchEventShim () {
   shim([
     $("a_button_group"),
@@ -92,19 +102,23 @@ function registerTouchEventShim () {
 var gameBoyColors = ["#33B678", "#FFDC2B", "#F61300", "#0356F2"];
 function pickRandomColor () {
   var nintendo = $("nintendo");
-  $("gameboy_shell").style.backgroundColor =
-    $("on_off").style.color =
-    nintendo.style.borderColor =
-    nintendo.style.color =
-    gameBoyColors[(gameBoyColors.length * Math.random()) | 0];
+  var shell = $("gameboy_shell");
+  var on_off = $("on_off");
+  if (nintendo && shell && on_off) {
+    shell.style.backgroundColor =
+      on_off.style.color =
+      nintendo.style.borderColor =
+      nintendo.style.color =
+      gameBoyColors[(gameBoyColors.length * Math.random()) | 0];
+  }
 };
 
 function windowingInitialize() {
-	cout("windowingInitialize() called.", 0);
+  cout("windowingInitialize() called.", 0);
   pickRandomColor();
-	mainCanvas = document.getElementById("mainCanvas");
+  mainCanvas = document.getElementById("mainCanvas");
   registerTouchEventShim();
-  window.onunload = autoSave;
+  window.onunload = function() { if (typeof autoSave === "function") autoSave(); };
 }
 var DEBUG_MESSAGES = false;
 var DEBUG_WINDOWING = false;
@@ -692,22 +706,20 @@ function mouseEnterVerify(oElement, event) {
 	return !isDescendantOf(oElement, (typeof event.target != "undefined") ? event.target : event.srcElement) && isDescendantOf(oElement, (typeof event.relatedTarget != "undefined") ? event.relatedTarget : event.fromElement);
 }
 function addEvent(sEvent, oElement, fListener) {
+	if (!oElement) return;
 	try {	
 		oElement.addEventListener(sEvent, fListener, false);
-		cout("In addEvent() : Standard addEventListener() called to add a(n) \"" + sEvent + "\" event.", -1);
 	}
 	catch (error) {
-		oElement.attachEvent("on" + sEvent, fListener);	//Pity for IE.
-		cout("In addEvent() : Nonstandard attachEvent() called to add an \"on" + sEvent + "\" event.", -1);
+		try { oElement.attachEvent("on" + sEvent, fListener); } catch(e) {}
 	}
 }
 function removeEvent(sEvent, oElement, fListener) {
+	if (!oElement) return;
 	try {	
 		oElement.removeEventListener(sEvent, fListener, false);
-		cout("In removeEvent() : Standard removeEventListener() called to remove a(n) \"" + sEvent + "\" event.", -1);
 	}
 	catch (error) {
-		oElement.detachEvent("on" + sEvent, fListener);	//Pity for IE.
-		cout("In removeEvent() : Nonstandard detachEvent() called to remove an \"on" + sEvent + "\" event.", -1);
+		try { oElement.detachEvent("on" + sEvent, fListener); } catch(e) {}
 	}
 }

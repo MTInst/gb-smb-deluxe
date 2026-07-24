@@ -1,4 +1,10 @@
 "use strict";
+if (typeof window.cout !== "function") {
+  window.cout = function(msg, colorIndex) {
+    if (typeof console !== "undefined" && console.log) console.log(msg);
+  };
+}
+var cout = window.cout;
 var gameboy = null;						//GameBoyCore object.
 var gbRunInterval = null;				//GameBoyCore Timer
 var settings = [						//Some settings.
