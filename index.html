@@ -345,30 +345,7 @@
         var map = {39:0, 37:1, 38:2, 40:3, 88:4, 90:5, 16:6, 13:7};
         if (map[code] !== undefined) {
           GameBoyJoyPadEvent(map[code], false);
-        }
-      });
-
-      // Sistema de Save Automático no LocalStorage (Cartucho SRAM + RTC)
-      function triggerAutoSave() {
-        if (typeof GameBoyEmulatorInitialized === "function" && GameBoyEmulatorInitialized()) {
-          if (typeof autoSave === "function") {
-            autoSave();
-          }
-        }
-      }
-
-      function showSaveNotification(msg) {
-        var toast = document.getElementById("save-toast");
-        if (toast) {
-          toast.textContent = msg;
-          toast.style.opacity = "1";
-          setTimeout(function() {
-            toast.style.opacity = "0";
-          }, 2500);
-        }
-      }
-
-      // Save Automático da Bateria (SRAM) no LocalStorage
+             // Save Automático da Bateria (SRAM) no LocalStorage
       function triggerAutoSave() {
         if (typeof GameBoyEmulatorInitialized === "function" && GameBoyEmulatorInitialized()) {
           if (typeof autoSave === "function") {
@@ -389,6 +366,16 @@
 
       // Autocarregar o Super Mario Bros Deluxe (game.gb)
       window.addEventListener("DOMContentLoaded", function() {
+        // Limpa save states antigos para garantir inicialização limpa no Intro
+        try {
+          for (var i = localStorage.length - 1; i >= 0; i--) {
+            var k = localStorage.key(i);
+            if (k && (k.indexOf("AUTO_SAVE_STATE_") === 0 || k.indexOf("FREEZE_") === 0)) {
+              localStorage.removeItem(k);
+            }
+          }
+        } catch (e) {}
+
         if (typeof settings !== "undefined") {
           settings[0] = true; // Audio ON
           settings[3] = 1.0;  // Volume 100%
@@ -409,7 +396,7 @@
             }
 
             var canvasElem = document.getElementById("mainCanvas");
-            // Reinicia o Game Boy normalmente (boot limpo no Intro) com a SRAM preservada
+            // Reinicia o Game Boy limpo na Intro/Title Screen
             start(canvasElem, binary);
 
             if (gameboy && gameboy.drawContextOnscreen) {
