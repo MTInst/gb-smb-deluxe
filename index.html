@@ -3,241 +3,20 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GameBoy Classic Fullscreen</title>
-    <style>
-      * {
-        box-sizing: border-box;
-        user-select: none;
-        -webkit-user-select: none;
-        touch-action: manipulation;
-        margin: 0;
-        padding: 0;
-      }
-
-      html, body {
-        width: 100%;
-        height: 100%;
-      }
-
-      body {
-        background: #111318;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-        overflow: hidden;
-      }
-
-      /* GameBoy Classic Off-White Shell */
-      #gameboy_shell {
-        width: 100%;
-        max-width: 400px;
-        background: #d6d2c4;
-        border: 2px solid #b8b4a6;
-        border-radius: 18px 18px 50px 18px;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -4px 8px rgba(0, 0, 0, 0.15);
-        padding: 14px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        margin: auto;
-      }
-
-      /* Full Width Screen Box */
-      .screen-container {
-        width: 100%;
-        background: #3c4048;
-        border-radius: 12px;
-        padding: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.6);
-        border: 1px solid #2b2e35;
-      }
-
-      .canvas-viewport {
-        width: 100%;
-        aspect-ratio: 160 / 144;
-        background: #000;
-        border-radius: 8px;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      /* Pixel Art Canvas */
-      #mainCanvas {
-        width: 100% !important;
-        height: 100% !important;
-        image-rendering: pixelated !important;
-        image-rendering: crisp-edges !important;
-        image-rendering: -moz-crisp-edges !important;
-        image-rendering: -webkit-optimize-contrast !important;
-        -ms-interpolation-mode: nearest-neighbor !important;
-        display: block;
-      }
-
-      /* Controls Section */
-      .controls-layout {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 4px 8px;
-      }
-
-      /* D-PAD Cross (Classic Dark Charcoal - Symmetrical) */
-      .dpad-cross {
-        width: 132px;
-        height: 132px;
-        position: relative;
-      }
-
-      .dpad-arm {
-        position: absolute;
-        width: 44px;
-        height: 44px;
-        background: #28292c;
-        border: 1px solid #141517;
-        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 3px 6px rgba(0,0,0,0.3);
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 0.95rem;
-        color: #71757e;
-        user-select: none;
-        -webkit-user-select: none;
-        transition: background 0.1s ease, color 0.1s ease;
-      }
-
-      .dpad-arm:active {
-        background: #111214 !important;
-        color: #10b981 !important;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.6) !important;
-      }
-
-      .dpad-up {
-        top: 0; left: 44px;
-        border-radius: 6px 6px 0 0;
-      }
-      .dpad-down {
-        top: 88px; left: 44px;
-        border-radius: 0 0 6px 6px;
-      }
-      .dpad-left {
-        top: 44px; left: 0;
-        border-radius: 6px 0 0 6px;
-      }
-      .dpad-right {
-        top: 44px; left: 88px;
-        border-radius: 0 6px 6px 0;
-      }
-      .dpad-center {
-        top: 44px; left: 44px; width: 44px; height: 44px;
-        background: #28292c;
-        position: absolute;
-        pointer-events: none;
-      }
-
-      /* Action Buttons A & B (Classic Dark Magenta) */
-      .action-buttons {
-        display: flex;
-        gap: 14px;
-        transform: rotate(-15deg);
-        background: #c7c3b5;
-        padding: 8px 12px;
-        border-radius: 36px;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 4px rgba(255,255,255,0.4);
-      }
-
-      .btn-circle-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        cursor: pointer;
-      }
-
-      .btn-circle {
-        width: 52px;
-        height: 52px;
-        background: linear-gradient(135deg, #a31854 0%, #7d0f3e 100%);
-        border-radius: 50%;
-        border: 1px solid #570a2a;
-        box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.3), 0 4px 8px rgba(0,0,0,0.4);
-        pointer-events: none;
-      }
-
-      .btn-circle-box:active .btn-circle {
-        transform: scale(0.94);
-        background: #10b981;
-        border-color: #047857;
-      }
-
-      .btn-name {
-        font-size: 0.8rem;
-        font-weight: 900;
-        color: #2e358b;
-        pointer-events: none;
-      }
-
-      /* System Controls (Select & Start Slanted Pills) */
-      .system-controls {
-        display: flex;
-        gap: 20px;
-        margin-top: 4px;
-      }
-
-      .sys-btn-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        transform: rotate(-20deg);
-        cursor: pointer;
-      }
-
-      .sys-btn {
-        width: 50px;
-        height: 14px;
-        background: #73767c;
-        border-radius: 8px;
-        border: 1px solid #505358;
-        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0,0,0,0.3);
-        pointer-events: none;
-      }
-
-      .sys-btn-wrapper:active .sys-btn {
-        background: #10b981;
-      }
-
-      .sys-txt {
-        font-size: 0.65rem;
-        font-weight: 900;
-        color: #2e358b;
-        letter-spacing: 0.5px;
-        pointer-events: none;
-      }
-    </style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Super Mario Bros. Deluxe - GameBoy Classic</title>
+    <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
     <div id="gameboy_shell">
-
-      <!-- TELA CHEIA MAXIMIZADA DO GAME BOY -->
-      <div class="screen-container" style="position: relative;">
-        <div id="save-toast" style="position: absolute; top: 8px; background: rgba(16, 185, 129, 0.9); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 10;"></div>
+      <!-- Screen Box -->
+      <div class="screen-container">
         <div class="canvas-viewport">
           <canvas id="mainCanvas" width="160" height="144"></canvas>
         </div>
       </div>
 
-      <!-- CONTROLES D-PAD & A/B -->
+      <!-- Controls Section -->
       <div class="controls-layout">
         <!-- D-PAD Cross -->
         <div class="dpad-cross">
@@ -248,7 +27,7 @@
           <div class="dpad-center"></div>
         </div>
 
-        <!-- Botões de Ação B e A -->
+        <!-- Action Buttons B & A -->
         <div class="action-buttons">
           <div class="btn-circle-box" id="btn-b" data-gb-key="5">
             <div class="btn-circle"></div>
@@ -261,7 +40,7 @@
         </div>
       </div>
 
-      <!-- Select & Start -->
+      <!-- System Controls (Select & Start) -->
       <div class="system-controls">
         <div class="sys-btn-wrapper" id="btn-select" data-gb-key="6">
           <div class="sys-btn"></div>
@@ -274,145 +53,20 @@
       </div>
     </div>
 
-    <!-- Grant Galitz Engine Scripts -->
-    <script src="js/other/mobile.js"></script>
-    <script src="js/other/base64.js"></script>
-    <script src="js/other/json2.js"></script>
-    <script src="js/other/swfobject.js"></script>
-    <script src="js/other/resampler.js"></script>
-    <script src="js/other/XAudioServer.js"></script>
-    <script src="js/other/resize.js"></script>
-    <script src="js/GameBoyCore.js"></script>
-    <script src="js/GameBoyIO.js"></script>
+    <!-- Emulator Core Scripts -->
+    <script src="js/emulator/mobile.js"></script>
+    <script src="js/emulator/base64.js"></script>
+    <script src="js/emulator/json2.js"></script>
+    <script src="js/emulator/swfobject.js"></script>
+    <script src="js/emulator/resampler.js"></script>
+    <script src="js/emulator/XAudioServer.js"></script>
+    <script src="js/emulator/resize.js"></script>
+    <script src="js/emulator/GameBoyCore.js"></script>
+    <script src="js/emulator/GameBoyIO.js"></script>
 
-    <script>
-      // Desbloqueio do Áudio (Web Audio API)
-      function unlockAudio() {
-        if (typeof XAudioJSWebAudioContextHandle !== "undefined" && XAudioJSWebAudioContextHandle) {
-          if (XAudioJSWebAudioContextHandle.state === "suspended") {
-            XAudioJSWebAudioContextHandle.resume();
-          }
-        }
-      }
-
-      window.addEventListener("touchstart", unlockAudio, { passive: true });
-      window.addEventListener("mousedown", unlockAudio, { passive: true });
-      window.addEventListener("click", unlockAudio, { passive: true });
-
-      function bindTouchControls() {
-        var buttons = document.querySelectorAll("[data-gb-key]");
-        buttons.forEach(function(btn) {
-          var keyIndex = parseInt(btn.getAttribute("data-gb-key"));
-
-          var handleDown = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            unlockAudio();
-            if (typeof GameBoyJoyPadEvent === "function") {
-              GameBoyJoyPadEvent(keyIndex, true);
-            }
-          };
-
-          var handleUp = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof GameBoyJoyPadEvent === "function") {
-              GameBoyJoyPadEvent(keyIndex, false);
-            }
-          };
-
-          btn.addEventListener("touchstart", handleDown, {passive: false});
-          btn.addEventListener("touchend", handleUp, {passive: false});
-          btn.addEventListener("mousedown", handleDown);
-          btn.addEventListener("mouseup", handleUp);
-        });
-      }
-
-      bindTouchControls();
-
-      // Mapeamento Teclado Físico
-      window.addEventListener("keydown", function(e) {
-        unlockAudio();
-        var code = e.keyCode || e.which;
-        var map = {39:0, 37:1, 38:2, 40:3, 88:4, 90:5, 16:6, 13:7};
-        if (map[code] !== undefined) {
-          GameBoyJoyPadEvent(map[code], true);
-        }
-      });
-
-      window.addEventListener("keyup", function(e) {
-        var code = e.keyCode || e.which;
-        var map = {39:0, 37:1, 38:2, 40:3, 88:4, 90:5, 16:6, 13:7};
-        if (map[code] !== undefined) {
-          GameBoyJoyPadEvent(map[code], false);
-        }
-      });
-
-      // Save Automático da Bateria (SRAM) no LocalStorage
-      function triggerAutoSave() {
-        if (typeof GameBoyEmulatorInitialized === "function" && GameBoyEmulatorInitialized()) {
-          if (typeof autoSave === "function") {
-            autoSave();
-          }
-        }
-      }
-
-      // Sincroniza a memória da bateria (SRAM) a cada 2 segundos
-      setInterval(triggerAutoSave, 2000);
-
-      // Salva imediatamente a bateria ao fechar a página ou minimizar
-      window.addEventListener("beforeunload", triggerAutoSave);
-      window.addEventListener("pagehide", triggerAutoSave);
-      document.addEventListener("visibilitychange", function() {
-        if (document.hidden) triggerAutoSave();
-      });
-
-      // Autocarregar o Super Mario Bros Deluxe (game.gb)
-      window.addEventListener("DOMContentLoaded", function() {
-        // Limpa save states antigos para garantir inicialização limpa no Intro
-        try {
-          for (var i = localStorage.length - 1; i >= 0; i--) {
-            var k = localStorage.key(i);
-            if (k && (k.indexOf("AUTO_SAVE_STATE_") === 0 || k.indexOf("FREEZE_") === 0)) {
-              localStorage.removeItem(k);
-            }
-          }
-        } catch (e) {}
-
-        if (typeof settings !== "undefined") {
-          settings[0] = true; // Audio ON
-          settings[3] = 1.0;  // Volume 100%
-        }
-
-        fetch("game.gb")
-          .then(function(res) {
-            if (!res.ok) throw new Error("ROM game.gb não encontrada");
-            return res.arrayBuffer();
-          })
-          .then(function(buffer) {
-            var bytes = new Uint8Array(buffer);
-            var binary = "";
-            var chunkSize = 8192;
-            for (var i = 0; i < bytes.length; i += chunkSize) {
-              var sub = bytes.subarray(i, i + chunkSize);
-              binary += String.fromCharCode.apply(null, sub);
-            }
-
-            var canvasElem = document.getElementById("mainCanvas");
-            // Reinicia o Game Boy limpo na Intro/Title Screen
-            start(canvasElem, binary);
-
-            if (gameboy && gameboy.drawContextOnscreen) {
-              gameboy.drawContextOnscreen.imageSmoothingEnabled = false;
-              gameboy.drawContextOnscreen.webkitImageSmoothingEnabled = false;
-              gameboy.drawContextOnscreen.mozImageSmoothingEnabled = false;
-              gameboy.drawContextOnscreen.msImageSmoothingEnabled = false;
-            }
-          })
-          .catch(function(err) {
-            console.log("Status:", err.message);
-          });
-      });
-    </script>
+    <!-- Game Logic & Controls Scripts -->
+    <script src="js/game/controls.js"></script>
+    <script src="js/game/save_system.js"></script>
+    <script src="js/game/loader.js"></script>
   </body>
 </html>
