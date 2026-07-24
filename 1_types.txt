@@ -1,0 +1,19 @@
+// src/types/gameboy.ts
+export type GBKey = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+export interface GameBoyControls {
+  RIGHT: 0;
+  LEFT: 1;
+  UP: 2;
+  DOWN: 3;
+  A: 4;
+  B: 5;
+  SELECT: 6;
+  START: 7;
+}
+
+export interface GameBoyState {
+  isRunning: boolean;
+  isAudioUnlocked: boolean;
+  volume: number;
+}

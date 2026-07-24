@@ -12531,10 +12531,6 @@ function removeEvent(sEvent, oElement, fListener) {
       function triggerAutoSave() {
         if (typeof GameBoyEmulatorInitialized === "function" && GameBoyEmulatorInitialized()) {
           if (typeof autoSave === "function") autoSave();
-          try {
-            var saveKey = "AUTO_SAVE_STATE_" + (gameboy && gameboy.name ? gameboy.name : "MARIO");
-            saveState(saveKey);
-          } catch(e) {}
         }
       }
       setInterval(triggerAutoSave, 3000);
@@ -12543,6 +12539,11 @@ function removeEvent(sEvent, oElement, fListener) {
       document.addEventListener("visibilitychange", function() { if (document.hidden) triggerAutoSave(); });
 
       window.addEventListener("DOMContentLoaded", function() {
+        try {
+          for (var k in localStorage) {
+            if (k.indexOf("AUTO_SAVE_STATE_") === 0) localStorage.removeItem(k);
+          }
+        } catch(e) {}
         if (typeof settings !== "undefined") { settings[0] = true; settings[3] = 1.0; }
         bindTouchControls();
         try {
@@ -12555,17 +12556,6 @@ function removeEvent(sEvent, oElement, fListener) {
             gameboy.drawContextOnscreen.mozImageSmoothingEnabled = false;
             gameboy.drawContextOnscreen.msImageSmoothingEnabled = false;
           }
-          setTimeout(function() {
-            try {
-              var saveKey = "AUTO_SAVE_STATE_" + (gameboy && gameboy.name ? gameboy.name : "MARIO");
-              var savedData = findValue(saveKey);
-              if (savedData) {
-                gameboy.returnFromState(savedData);
-              }
-            } catch(err) {
-              console.log("Erro ao carregar save:", err);
-            }
-          }, 150);
         } catch(err) {
           console.error("Erro ao iniciar ROM:", err);
         }

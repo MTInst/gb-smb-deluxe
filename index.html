@@ -348,16 +348,12 @@
         }
       });
 
-      // Sistema de Save Automático no LocalStorage (SRAM + Freeze State)
+      // Sistema de Save Automático no LocalStorage (Cartucho SRAM + RTC)
       function triggerAutoSave() {
         if (typeof GameBoyEmulatorInitialized === "function" && GameBoyEmulatorInitialized()) {
           if (typeof autoSave === "function") {
             autoSave();
           }
-          try {
-            var saveKey = "AUTO_SAVE_STATE_" + (gameboy && gameboy.name ? gameboy.name : "MARIO");
-            saveState(saveKey);
-          } catch (e) {}
         }
       }
 
@@ -368,14 +364,14 @@
           toast.style.opacity = "1";
           setTimeout(function() {
             toast.style.opacity = "0";
-          }, 2000);
+          }, 2500);
         }
       }
 
-      // Salva periodicamente a cada 3 segundos
+      // Salva a SRAM a cada 3 segundos enquanto joga
       setInterval(triggerAutoSave, 3000);
 
-      // Salva ao fechar, sair ou trocar de aba no celular/navegador
+      // Salva imediatamente ao fechar a página, minimizar ou trocar de aplicativo
       window.addEventListener("beforeunload", triggerAutoSave);
       window.addEventListener("pagehide", triggerAutoSave);
       document.addEventListener("visibilitychange", function() {
@@ -384,6 +380,15 @@
 
       // Autocarregar o Super Mario Bros Deluxe (game.gb)
       window.addEventListener("DOMContentLoaded", function() {
+        // Limpa possíveis save states pesados antigos que estouravam a cota
+        try {
+          for (var k in localStorage) {
+            if (k.indexOf("AUTO_SAVE_STATE_") === 0) {
+              localStorage.removeItem(k);
+            }
+          }
+        } catch(e) {}
+
         if (typeof settings !== "undefined") {
           settings[0] = true; // Audio ON
           settings[3] = 1.0;  // Volume 100%
@@ -413,19 +418,12 @@
               gameboy.drawContextOnscreen.msImageSmoothingEnabled = false;
             }
 
-            // Restaura automaticamente o save/progresso do jogador
+            // Notifica se houver save de bateria carregado
             setTimeout(function() {
-              try {
-                var saveKey = "AUTO_SAVE_STATE_" + (gameboy && gameboy.name ? gameboy.name : "MARIO");
-                var savedData = findValue(saveKey);
-                if (savedData) {
-                  gameboy.returnFromState(savedData);
-                  showSaveNotification("▶️ Progresso carregado!");
-                }
-              } catch (err) {
-                console.log("Erro ao carregar save state:", err);
+              if (gameboy && gameboy.name && findValue("B64_SRAM_" + gameboy.name)) {
+                showSaveNotification("💾 Save do jogo ativo!");
               }
-            }, 150);
+            }, 300);
           })
           .catch(function(err) {
             console.log("Status:", err.message);

@@ -1,0 +1,76 @@
+// src/components/GameBoyShell.tsx
+import React, { useEffect, useRef } from react;
+import { MARIO_DELUXE_B64 } from ../emulator/marioRom;
+
+declare var start: any;
+declare var GameBoyJoyPadEvent: any;
+declare var XAudioJSWebAudioContextHandle: any;
+
+export const GameBoyShell: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const unlockAudio = () => {
+    if (typeof XAudioJSWebAudioContextHandle !== undefined && XAudioJSWebAudioContextHandle) {
+      if (XAudioJSWebAudioContextHandle.state === suspended) {
+        XAudioJSWebAudioContextHandle.resume();
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      try {
+        const binary = atob(MARIO_DELUXE_B64);
+        start(canvasRef.current, binary);
+      } catch (err) {
+        console.error("Erro ao iniciar ROM:", err);
+      }
+    }
+  }, []);
+
+  const handleBtnDown = (keyIndex: number) => {
+    unlockAudio();
+    if (typeof GameBoyJoyPadEvent === function) {
+      GameBoyJoyPadEvent(keyIndex, true);
+    }
+  };
+
+  const handleBtnUp = (keyIndex: number) => {
+    if (typeof GameBoyJoyPadEvent === function) {
+      GameBoyJoyPadEvent(keyIndex, false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-[400px] bg-[#d6d2c4] border-2 border-[#b8b4a6] rounded-[18px_18px_50px_18px] shadow-2xl p-3.5 flex flex-col items-center gap-4 m-auto">
+      <div className="w-full bg-[#3c4048] rounded-xl p-1 shadow-inner border border-[#2b2e35]">
+        <div className="w-full aspect-[160/144] bg-black rounded-lg overflow-hidden flex items-center justify-center">
+          <canvas ref={canvasRef} width="160" height="144" className="w-full h-full [image-rendering:pixelated]" />
+        </div>
+      </div>
+
+      <div className="w-full flex justify-between items-center px-2">
+        {/* D-Pad */}
+        <div className="w-[130px] h-[130px] relative">
+          <button onMouseDown={() => handleBtnDown(2)} onMouseUp={() => handleBtnUp(2)} onTouchStart={() => handleBtnDown(2)} onTouchEnd={() => handleBtnUp(2)} className="absolute top-0 left-[43px] w-[44px] h-[46px] bg-[#28292c] rounded-t-md text-gray-400 font-bold active:bg-[#10b981]">▲</button>
+          <button onMouseDown={() => handleBtnDown(3)} onMouseUp={() => handleBtnUp(3)} onTouchStart={() => handleBtnDown(3)} onTouchEnd={() => handleBtnUp(3)} className="absolute bottom-0 left-[43px] w-[44px] h-[46px] bg-[#28292c] rounded-b-md text-gray-400 font-bold active:bg-[#10b981]">▼</button>
+          <button onMouseDown={() => handleBtnDown(1)} onMouseUp={() => handleBtnUp(1)} onTouchStart={() => handleBtnDown(1)} onTouchEnd={() => handleBtnUp(1)} className="absolute top-[43px] left-0 w-[46px] h-[44px] bg-[#28292c] rounded-l-md text-gray-400 font-bold active:bg-[#10b981]">◄</button>
+          <button onMouseDown={() => handleBtnDown(0)} onMouseUp={() => handleBtnUp(0)} onTouchStart={() => handleBtnDown(0)} onTouchEnd={() => handleBtnUp(0)} className="absolute top-[43px] right-0 w-[46px] h-[44px] bg-[#28292c] rounded-r-md text-gray-400 font-bold active:bg-[#10b981]">►</button>
+          <div className="absolute top-[43px] left-[43px] w-[44px] h-[44px] bg-[#28292c]" />
+        </div>
+
+        {/* Action Buttons B & A */}
+        <div className="flex gap-3.5 -rotate-12 bg-[#c7c3b5] p-2 rounded-full">
+          <button onMouseDown={() => handleBtnDown(5)} onMouseUp={() => handleBtnUp(5)} onTouchStart={() => handleBtnDown(5)} onTouchEnd={() => handleBtnUp(5)} className="w-[52px] h-[52px] bg-gradient-to-br from-[#a31854] to-[#7d0f3e] rounded-full active:bg-[#10b981] flex flex-col items-center justify-center font-black text-xs text-[#2e358b]">B</button>
+          <button onMouseDown={() => handleBtnDown(4)} onMouseUp={() => handleBtnUp(4)} onTouchStart={() => handleBtnDown(4)} onTouchEnd={() => handleBtnUp(4)} className="w-[52px] h-[52px] bg-gradient-to-br from-[#a31854] to-[#7d0f3e] rounded-full active:bg-[#10b981] flex flex-col items-center justify-center font-black text-xs text-[#2e358b]">A</button>
+        </div>
+      </div>
+
+      {/* Select / Start */}
+      <div className="flex gap-5 -rotate-12">
+        <button onMouseDown={() => handleBtnDown(6)} onMouseUp={() => handleBtnUp(6)} onTouchStart={() => handleBtnDown(6)} onTouchEnd={() => handleBtnUp(6)} className="flex flex-col items-center"><div className="w-[50px] h-[14px] bg-[#73767c] rounded-md active:bg-[#10b981]" /><span className="text-[10px] font-black text-[#2e358b]">SELECT</span></button>
+        <button onMouseDown={() => handleBtnDown(7)} onMouseUp={() => handleBtnUp(7)} onTouchStart={() => handleBtnDown(7)} onTouchEnd={() => handleBtnUp(7)} className="flex flex-col items-center"><div className="w-[50px] h-[14px] bg-[#73767c] rounded-md active:bg-[#10b981]" /><span className="text-[10px] font-black text-[#2e358b]">START</span></button>
+      </div>
+    </div>
+  );
+};
