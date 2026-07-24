@@ -345,7 +345,10 @@
         var map = {39:0, 37:1, 38:2, 40:3, 88:4, 90:5, 16:6, 13:7};
         if (map[code] !== undefined) {
           GameBoyJoyPadEvent(map[code], false);
-             // Save Automático da Bateria (SRAM) no LocalStorage
+        }
+      });
+
+      // Save Automático da Bateria (SRAM) no LocalStorage
       function triggerAutoSave() {
         if (typeof GameBoyEmulatorInitialized === "function" && GameBoyEmulatorInitialized()) {
           if (typeof autoSave === "function") {
