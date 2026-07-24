@@ -368,10 +368,19 @@
         }
       }
 
-      // Salva a SRAM a cada 3 segundos enquanto joga
-      setInterval(triggerAutoSave, 3000);
+      // Save Automático da Bateria (SRAM) no LocalStorage
+      function triggerAutoSave() {
+        if (typeof GameBoyEmulatorInitialized === "function" && GameBoyEmulatorInitialized()) {
+          if (typeof autoSave === "function") {
+            autoSave();
+          }
+        }
+      }
 
-      // Salva imediatamente ao fechar a página, minimizar ou trocar de aplicativo
+      // Sincroniza a memória da bateria (SRAM) a cada 2 segundos
+      setInterval(triggerAutoSave, 2000);
+
+      // Salva imediatamente a bateria ao fechar a página ou minimizar
       window.addEventListener("beforeunload", triggerAutoSave);
       window.addEventListener("pagehide", triggerAutoSave);
       document.addEventListener("visibilitychange", function() {
@@ -380,15 +389,6 @@
 
       // Autocarregar o Super Mario Bros Deluxe (game.gb)
       window.addEventListener("DOMContentLoaded", function() {
-        // Limpa possíveis save states pesados antigos que estouravam a cota
-        try {
-          for (var k in localStorage) {
-            if (k.indexOf("AUTO_SAVE_STATE_") === 0) {
-              localStorage.removeItem(k);
-            }
-          }
-        } catch(e) {}
-
         if (typeof settings !== "undefined") {
           settings[0] = true; // Audio ON
           settings[3] = 1.0;  // Volume 100%
@@ -409,6 +409,7 @@
             }
 
             var canvasElem = document.getElementById("mainCanvas");
+            // Reinicia o Game Boy normalmente (boot limpo no Intro) com a SRAM preservada
             start(canvasElem, binary);
 
             if (gameboy && gameboy.drawContextOnscreen) {
@@ -417,13 +418,6 @@
               gameboy.drawContextOnscreen.mozImageSmoothingEnabled = false;
               gameboy.drawContextOnscreen.msImageSmoothingEnabled = false;
             }
-
-            // Notifica se houver save de bateria carregado
-            setTimeout(function() {
-              if (gameboy && gameboy.name && findValue("B64_SRAM_" + gameboy.name)) {
-                showSaveNotification("💾 Save do jogo ativo!");
-              }
-            }, 300);
           })
           .catch(function(err) {
             console.log("Status:", err.message);
